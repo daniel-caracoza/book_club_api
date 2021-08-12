@@ -1,0 +1,44 @@
+{
+   "name": "server",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "devDependencies": {
+      "@types/express": "^4.17.12",
+      "@types/faker": "^5.5.7",
+      "@types/graphql": "^14.5.0",
+      "@types/jest": "^26.0.24",
+      "@types/jsonwebtoken": "^8.5.3",
+      "@types/node": "^15.12.5",
+      "faker": "^5.5.3",
+      "jest": "^27.0.6",
+      "nodemon": "^2.0.9",
+      "ts-jest": "^27.0.3",
+      "ts-node": "^3.3.0",
+      "typescript": "^3.3.3333"
+   },
+   "dependencies": {
+      "apollo-server-express": "^2.25.2",
+      "axios": "^0.21.1",
+      "bcrypt": "^5.0.1",
+      "class-validator": "^0.13.1",
+      "cookie-parser": "^1.4.5",
+      "dotenv": "^10.0.0",
+      "express": "^4.17.1",
+      "graphql": "^15.5.1",
+      "graphql-subscriptions": "^1.2.1",
+      "ioredis": "^4.27.7",
+      "jsonwebtoken": "^8.5.1",
+      "nodemailer": "^6.6.3",
+      "pg": "^8.4.0",
+      "reflect-metadata": "^0.1.13",
+      "subscriptions-transport-ws": "^0.9.19",
+      "type-graphql": "^1.1.1",
+      "typeorm": "0.2.34",
+      "uuid": "^8.3.2"
+   },
+   "scripts": {
+      "start": "nodemon --exec ts-node src/index.ts",
+      "db:setup": "ts-node ./src/test-utils/setup.ts",
+      "test": "npm run db:setup && jest"
+   }
+}
