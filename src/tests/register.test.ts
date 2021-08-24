@@ -14,11 +14,12 @@ afterAll(async() => {
 })
 
 const registerMutation = 
-`mutation Register($username:String!, $email:String!, $password:String!){
+`
+mutation Register($username:String!, $email:String!, $password:String!){
     register(username: $username, email: $email, password: $password){
       username
     }
-  }
+}
   `
 
 describe("Register", () => {

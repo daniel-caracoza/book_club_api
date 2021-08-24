@@ -1,13 +1,15 @@
-import { ObjectType, Field } from "type-graphql";
-import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { ObjectType, Field, Int, Float } from "type-graphql";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, Index } from "typeorm";
 import { Note } from "./Note";
 
 @ObjectType()
 @Entity()
 export class Book extends BaseEntity {
 
-    @PrimaryColumn()
-    id: number; 
+    @Field(type => Float)
+    @Index()
+    @PrimaryColumn({type: "bigint"})
+    id: string; 
 
     @Field()
     @Column()
@@ -21,7 +23,7 @@ export class Book extends BaseEntity {
     @Column()
     author: string; 
 
-    @Field()
+    @Field(type => Int)
     @Column({default: 0})
     currentPage: number;
     

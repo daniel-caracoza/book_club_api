@@ -33,6 +33,7 @@ const getUserBooks =
         bookTitle
         author
         image
+        currentPage
     }
 }
 `

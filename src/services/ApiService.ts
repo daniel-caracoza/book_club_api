@@ -9,13 +9,14 @@ export abstract class ApiService {
             const response = await axios.get(`${this.url}/${route}/${searchTerm}`, {
                 params: {
                     page: 1, 
-                    pageSize: 10
+                    pageSize: 10, 
+                    column: "title"
                 }, 
                 headers: {
                     Authorization: process.env.API_KEY
                 }
             })
-            const books: Array<ApiServiceSearchResponse> = new Array<ApiServiceSearchResponse>(); 
+            const books: Array<ApiServiceSearchResponse> = new Array<ApiServiceSearchResponse>();
             for (const item of response.data.books){
                 const searchResponse = new ApiServiceSearchResponse(
                     item.title, 

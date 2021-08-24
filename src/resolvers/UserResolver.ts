@@ -52,7 +52,6 @@ export class UserResolver {
         @Ctx() ctx: Context): Promise<LoginResponse> | null {
             
             const user = await User.findOne({where: {username}});
-
             if(!user){
                 return null; 
             }
