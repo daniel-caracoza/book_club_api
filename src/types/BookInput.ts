@@ -5,7 +5,7 @@ import { Book } from "../entity/Book";
 export class BookInput implements Partial<Book> {
 
     @Field()
-    id: number; 
+    id: string; 
 
     @Field()
     bookTitle: string;

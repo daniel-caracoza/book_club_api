@@ -79,8 +79,7 @@ describe("Testing club resolver", () => {
         const user = await User.create({
             username: faker.name.firstName(),
             email: faker.internet.email(), 
-            password: faker.internet.password(),
-            clubs: Array<Club>()
+            password: faker.internet.password()
         }).save()
         //create auth token for dummy user
         token = generateAccessToken(user); 

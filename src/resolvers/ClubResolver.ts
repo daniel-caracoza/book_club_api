@@ -2,7 +2,6 @@ import { Resolver, Mutation, Root, Subscription, Arg, Ctx, Authorized, Query } f
 import { PubSub as ps} from "apollo-server-express"; 
 import { Club, ClubTopic, Comment } from "../entity/Club"
 import { User } from "../entity/User"
-import {  getConnection } from "typeorm";
 import { Context } from "../context.interface";
 
 const pSub = new ps(); 
@@ -16,18 +15,21 @@ export class ClubResolver {
         @Arg("clubId") clubId: string,
         @Arg("clubName") clubName: string,
         @Ctx() {payload}: Context 
-    ): Promise<Club> {
-        const new_club = Club.create({
-            id: clubId, 
-            clubName: clubName
-        }) 
+    ): Promise<Club> {  
         const userId = payload.userId
+        let new_club; 
         //save server to user that created it
         try {
-            await new_club.save()
+            new_club =  await Club.create({
+                id: clubId, 
+                clubName: clubName
+            }).save();            
             const user = await User.findOne({where: {id: parseInt(userId)}})
-            user.clubs = [new_club]
-            getConnection().getRepository(User).save(user); 
+            if(!user.clubs){
+                user.clubs = new Array<Club>(); 
+            }
+            user.clubs.push(new_club);
+            await user.save(); 
         } catch (err) {
             console.log(err)
         }
@@ -48,7 +50,10 @@ export class ClubResolver {
             const new_topic = await ClubTopic.create({
                 topic
             }).save(); 
-            club.topics = [new_topic];
+            if(!club.topics){
+                club.topics = new Array<ClubTopic>(); 
+            }
+            club.topics.push(new_topic);
             await club.save(); 
             return new_topic; 
         } catch(err){
@@ -71,8 +76,11 @@ export class ClubResolver {
         if(!clubTopic){
             return null; 
         }
-        await comment.save(); 
-        clubTopic.comments = [comment];
+        await comment.save();
+        if(!clubTopic.comments){
+            clubTopic.comments = new Array<Comment>(); 
+        } 
+        clubTopic.comments.push(comment);
         pSub.publish(clubTopicId, comment);  
         return comment; 
     }

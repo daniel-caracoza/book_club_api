@@ -14,9 +14,12 @@ export class BookResolver {
     ): Promise<Book>{
         try {
             const user = await User.findOne({where: {id: parseInt(payload.userId)}})
-            const book = await Book.create(bookInput).save()
-            user.books = [book];
-            await user.save();
+            const book = await Book.create(bookInput).save(); 
+            await User.createQueryBuilder()
+            .relation(User, "books")
+            .of(user)
+            .add(book); 
+            await user.save(); 
             return book; 
         } catch(error){
             console.log(error); 
@@ -24,7 +27,30 @@ export class BookResolver {
     }
 
     @Authorized()
-    @Query(returns => [Book])
+    @Query(returns => Boolean)
+    async doesUserBookExist(
+        @Arg("bookId") bookId: string, 
+        @Ctx() {payload}: Context
+    ): Promise<boolean> {
+        try {
+            const userId = payload.userId; 
+            const userInfo = await User.createQueryBuilder("user")
+            .innerJoinAndSelect("user.books", "book")
+            .where("user.id=:userId", {userId})
+            .andWhere("book.id=:bookId", {bookId})
+            .getOne()
+            
+            if(!userInfo){
+                return false; 
+            }
+            return true; 
+        } catch(error){
+            console.log(error);
+        }
+    }
+
+    @Authorized()
+    @Query(returns => [Book], {nullable: true})
     async userBooks(
         @Ctx() {payload}: Context
     ): Promise<Book[]> {
@@ -33,7 +59,11 @@ export class BookResolver {
             const userInfo = await User.createQueryBuilder("user")
             .innerJoinAndSelect("user.books", "book")
             .where("user.id=:userId", {userId})
-            .getMany(); 
+            .getMany();
+            if(userInfo.length === 0){
+                return []; 
+            }
+            console.log(userInfo[0].books); 
             return userInfo[0].books; 
         } catch (error){
             console.log(error); 

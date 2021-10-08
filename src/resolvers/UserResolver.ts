@@ -1,5 +1,6 @@
 import {Resolver, Query, Mutation, Arg, Ctx, Authorized} from "type-graphql"; 
 import { User } from "../entity/User";
+import { Book } from "../entity/Book"; 
 import * as bcrypt from "bcrypt"; 
 import { Context } from "../context.interface";
 import { LoginResponse } from "../types/LoginResponse";
@@ -7,6 +8,7 @@ import { generateAccessToken, generateRefreshToken } from "../auth/auth";
 import {sendRefreshToken} from "../auth/sendRefreshToken"
 import { createConfirmationUrl } from "../utils/createConfirmationUrl";
 import { sendEmail } from "../utils/sendEmail";
+import { verify } from "jsonwebtoken";
 
 @Resolver()
 export class UserResolver {
@@ -34,7 +36,8 @@ export class UserResolver {
                 const user = await User.create({
                     username: username,
                     email: email,  
-                    password: hashedPassword
+                    password: hashedPassword, 
+                    books: new Array<Book>()
                 }).save();
                 const url = await createConfirmationUrl(user.id);
                 await sendEmail(email, url)  
@@ -72,4 +75,32 @@ export class UserResolver {
             }
 
         }
+    
+    @Mutation(() => LoginResponse, {nullable: true})
+    async refreshAccessToken(
+        @Ctx() ctx: Context
+    ): Promise<LoginResponse> {
+        const refreshToken = ctx.req.cookies['jid'];
+        if(!refreshToken){
+            return null; 
+        }
+        //validate token
+        try {
+            const payload: any = await verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+            if(!payload){
+                throw new Error("not authenticated")
+            }
+            const user = await User.findOne({where: {id: payload.userId}}) 
+            sendRefreshToken(ctx.res, generateRefreshToken(user));
+            console.log("i was called");  
+            return {
+                accessToken: generateAccessToken(user), 
+                user: user
+            }
+        } catch (err){
+            console.log(err); 
+        }
+    }
+
+
 }

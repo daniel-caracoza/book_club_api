@@ -1,4 +1,3 @@
-import { userInfo } from "os";
 import { Field, ID, ObjectType } from "type-graphql";
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable} from "typeorm";
 import { Book } from "./Book";
@@ -26,11 +25,11 @@ export class User extends BaseEntity {
     @Column({default: false})
     confirmed: boolean
 
-    @ManyToMany(() => Book)
+    @ManyToMany(() => Book, {cascade: true })
     @JoinTable()
     books: Book[]; 
 
-    @ManyToMany(() => Club)
+    @ManyToMany(() => Club, {cascade: true})
     @JoinTable()
     clubs: Club[]; 
 

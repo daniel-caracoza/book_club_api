@@ -14,4 +14,13 @@ export class ApiServiceResolver {
         const searchResult = await ApiService.search(searchTerm, route); 
         return searchResult; 
     }
+
+    @Authorized()
+    @Query(() => ApiServiceSearchResponse, {nullable: true})
+    async findByISBN(
+        @Arg("isbn") isbn: string
+    ): Promise<ApiServiceSearchResponse> {
+        const searchResultByIsbn = await ApiService.findWitIsbn(isbn); 
+        return searchResultByIsbn; 
+    }
 }

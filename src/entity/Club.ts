@@ -15,7 +15,7 @@ export class Club extends BaseEntity {
     @Column()
     clubName: string;
 
-    @OneToMany(() => ClubTopic, clubTopic => clubTopic.club)
+    @OneToMany(() => ClubTopic, clubTopic => clubTopic.club, {cascade: true})
     topics: ClubTopic[]; 
 
 }
