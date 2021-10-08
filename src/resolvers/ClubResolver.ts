@@ -49,11 +49,11 @@ export class ClubResolver {
             }
             const new_topic = await ClubTopic.create({
                 topic
-            }).save(); 
-            if(!club.topics){
-                club.topics = new Array<ClubTopic>(); 
-            }
-            club.topics.push(new_topic);
+            }).save();
+            await Club.createQueryBuilder()
+            .relation(Club, "topics")
+            .of(club)
+            .add(new_topic); 
             await club.save(); 
             return new_topic; 
         } catch(err){
@@ -76,11 +76,13 @@ export class ClubResolver {
         if(!clubTopic){
             return null; 
         }
-        await comment.save();
-        if(!clubTopic.comments){
-            clubTopic.comments = new Array<Comment>(); 
-        } 
-        clubTopic.comments.push(comment);
+        await comment.save(); 
+        await ClubTopic.createQueryBuilder()
+        .relation(ClubTopic, "comments")
+        .of(clubTopic)
+        .add(comment); 
+
+        clubTopic.save(); 
         pSub.publish(clubTopicId, comment);  
         return comment; 
     }

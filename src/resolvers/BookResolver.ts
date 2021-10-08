@@ -63,7 +63,6 @@ export class BookResolver {
             if(userInfo.length === 0){
                 return []; 
             }
-            console.log(userInfo[0].books); 
             return userInfo[0].books; 
         } catch (error){
             console.log(error); 

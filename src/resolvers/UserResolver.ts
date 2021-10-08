@@ -92,7 +92,6 @@ export class UserResolver {
             }
             const user = await User.findOne({where: {id: payload.userId}}) 
             sendRefreshToken(ctx.res, generateRefreshToken(user));
-            console.log("i was called");  
             return {
                 accessToken: generateAccessToken(user), 
                 user: user
