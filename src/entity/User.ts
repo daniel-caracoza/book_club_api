@@ -1,7 +1,8 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable, OneToMany} from "typeorm";
 import { Book } from "./Book";
 import { Club } from "./Club";
+import { Invite } from "./Invite";
 
 @ObjectType()
 @Entity()
@@ -31,6 +32,10 @@ export class User extends BaseEntity {
 
     @ManyToMany(() => Club, {cascade: true})
     @JoinTable()
-    clubs: Club[]; 
+    clubs: Club[];
+    
+    @OneToMany(() => Invite, invite => invite.user)
+    @JoinTable()
+    invites: Invite[]; 
 
 }

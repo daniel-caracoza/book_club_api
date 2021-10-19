@@ -3,6 +3,7 @@ import { PubSub as ps} from "apollo-server-express";
 import { Club, ClubTopic, Comment } from "../entity/Club"
 import { User } from "../entity/User"
 import { Context } from "../context.interface";
+import { Invite } from "../entity/Invite";
 
 const pSub = new ps(); 
 
@@ -24,11 +25,13 @@ export class ClubResolver {
                 id: clubId, 
                 clubName: clubName
             }).save();            
-            const user = await User.findOne({where: {id: parseInt(userId)}})
-            if(!user.clubs){
-                user.clubs = new Array<Club>(); 
-            }
-            user.clubs.push(new_club);
+            const user = await User.findOne({where: {id: parseInt(userId)}}); 
+        
+            await User.createQueryBuilder()
+            .relation(User, "clubs")
+            .of(user)
+            .add(new_club); 
+
             await user.save(); 
         } catch (err) {
             console.log(err)
@@ -82,7 +85,7 @@ export class ClubResolver {
         .of(clubTopic)
         .add(comment); 
 
-        clubTopic.save(); 
+        await clubTopic.save(); 
         pSub.publish(clubTopicId, comment);  
         return comment; 
     }
@@ -112,8 +115,6 @@ export class ClubResolver {
         return topics; 
     }
 
-
-
     @Authorized()
     @Query(returns => [Comment])
     async topicComments(
@@ -133,5 +134,51 @@ export class ClubResolver {
         @Root() payload: Comment
     ): Promise<Comment> {
         return payload
+    }
+
+    @Authorized()
+    @Mutation(returns => Invite, {nullable: true})
+    async createClubInvite(
+        @Arg("clubId") clubId: string, 
+        @Arg("clubName") clubName: string,
+        @Arg("invitee_username") invitee_username: string,  
+        @Ctx() {payload}: Context
+    ): Promise<Invite> | null {
+        try {
+            const invitee = await User.findOne({where: {username: invitee_username}})
+            if(!invitee){
+                return null; 
+            }
+
+            const invite = await Invite.create({
+                sender: payload.username, 
+                clubId: clubId, 
+                clubName: clubName
+            }
+            ).save(); 
+
+            await User.createQueryBuilder()
+            .relation(User, "invites")
+            .of(invitee)
+            .add(invite); 
+
+            await invitee.save();
+            return invite; 
+        } catch(error){
+            console.log(error); 
+        }
+    }
+
+    @Authorized()
+    @Query(returns => [Invite])
+    async getInvites(
+        @Ctx() {payload}: Context
+    ): Promise<Invite[]> {
+        const userId = payload.userId; 
+        const user = await User.createQueryBuilder<User>("user")
+        .innerJoinAndSelect("user.invites", "invite")
+        .where("user.id=:userId", {userId})
+        .getMany(); 
+        return user[0].invites;
     }
 }

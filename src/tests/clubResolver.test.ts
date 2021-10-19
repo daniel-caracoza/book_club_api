@@ -6,6 +6,7 @@ import * as faker from "faker"
 import { Club } from "../entity/Club";
 import { User } from "../entity/User";
 import { generateAccessToken } from "../auth/auth";
+
 dotenv.config()
 let conn: Connection; 
 
@@ -69,14 +70,35 @@ query TopicComments($clubTopicId: String!){
 }
 `
 
+const createClubInvite = `
+mutation CreateClubInvite($clubId: String!, $clubName: String!, $invitee_username: String!){
+    createClubInvite(clubId: $clubId, clubName: $clubName, invitee_username: $invitee_username){
+        sender
+        clubId
+        clubName
+    }
+}
+`
+const getUserInvites = `
+query GetInvites {
+    getInvites {
+        sender
+        clubId
+        clubName
+    }
+}
+`
+
 describe("Testing club resolver", () => {
     const clubId = "12345"
     const fakeClubName = faker.name.firstName();
     const fakeTopic = faker.name.firstName();  
     let token; 
-    let topicId; 
+    let topicId;
+    let club;
+    let user;
     it("create a club", async() => {
-        const user = await User.create({
+        user = await User.create({
             username: faker.name.firstName(),
             email: faker.internet.email(), 
             password: faker.internet.password()
@@ -100,7 +122,7 @@ describe("Testing club resolver", () => {
             }
         })
         //check to see if club was created
-        const club = await Club.findOne({where: {id: clubId}})
+        club = await Club.findOne({where: {id: clubId}})
         expect(club).toBeDefined(); 
     })
     it("get users clubs", async() => {
@@ -181,4 +203,43 @@ describe("Testing club resolver", () => {
         expect(response.data.topicComments).toBeDefined();  
     })
 
+    it("create a club invite", async() => { 
+        const response = await gCall({
+            source: createClubInvite, 
+            variableValues: {
+                clubId: club.id, 
+                clubName: club.clubName, 
+                invitee_username: user.username
+            },
+            id: user.id,  
+            token
+        })
+        expect(response).toMatchObject({
+            data: {
+                createClubInvite: {
+                    sender: user.username,
+                    clubId: club.id, 
+                    clubName: club.clubName
+                }
+            }
+        });
+    })
+
+    it("get user invites", async() => {
+        const response = await gCall({
+            source: getUserInvites,
+            token
+        })
+        expect(response).toMatchObject({
+            data: {
+                getInvites: [
+                    {
+                        sender: user.username, 
+                        clubId: club.id, 
+                        clubName: club.clubName
+                    }
+                ]
+            }
+        })
+    })
 })
