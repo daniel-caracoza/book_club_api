@@ -34,7 +34,7 @@ mutation CreateTopic($clubId: String!, $topic: String!){
 }
 `
 const getUserClubs = `
-query GetClubs{
+query GetClubs {
     getClubs{
         id
         clubName
@@ -130,7 +130,6 @@ describe("Testing club resolver", () => {
             source: getUserClubs, 
             token
         })
-
         expect(response).toMatchObject({
             data: {
                 getClubs: [

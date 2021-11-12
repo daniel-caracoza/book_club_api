@@ -96,11 +96,20 @@ export class ClubResolver {
         @Ctx() {payload}: Context
     ): Promise<Club[]> | null {
         const userId = payload.userId; 
-        const user = await User.createQueryBuilder<User>("user")
-        .innerJoinAndSelect("user.clubs", "club")
-        .where("user.id=:userId", {userId})
-        .getMany(); 
-        return user[0].clubs; 
+        try {
+            const user = await User.createQueryBuilder<User>("user")
+            .innerJoinAndSelect("user.clubs", "club")
+            .where("user.id=:userId", {userId})
+            .getMany();
+            if(!user[0]){
+                return null; 
+            }
+        
+            return user[0].clubs 
+
+        } catch(error){
+            console.log(error); 
+        }
     }
 
     @Authorized()

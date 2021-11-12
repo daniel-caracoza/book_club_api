@@ -1,6 +1,7 @@
 import {Resolver, Query, Mutation, Arg, Ctx, Authorized} from "type-graphql"; 
 import { User } from "../entity/User";
-import { Book } from "../entity/Book"; 
+import { Book } from "../entity/Book";
+import { Club } from "../entity/Club";  
 import * as bcrypt from "bcrypt"; 
 import { Context } from "../context.interface";
 import { LoginResponse } from "../types/LoginResponse";
@@ -37,7 +38,8 @@ export class UserResolver {
                     username: username,
                     email: email,  
                     password: hashedPassword, 
-                    books: new Array<Book>()
+                    books: new Array<Book>(), 
+                    clubs: new Array<Club>()
                 }).save();
                 const url = await createConfirmationUrl(user.id);
                 await sendEmail(email, url)  
