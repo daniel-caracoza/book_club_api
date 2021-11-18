@@ -1,4 +1,4 @@
-import { Field, Float, ObjectType } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, Index, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -6,7 +6,7 @@ import { BaseEntity, Column, Entity, Index, ManyToOne, OneToMany, PrimaryColumn,
 export class Club extends BaseEntity {
 
     //use the isbn of the book to make seeing existing book clubs 
-    @Field(type => Float)
+    @Field()
     @Index()
     @PrimaryColumn({type: "bigint"})
     id: string; 

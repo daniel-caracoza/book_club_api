@@ -35,7 +35,7 @@ mutation CreateTopic($clubId: String!, $topic: String!){
 `
 const getUserClubs = `
 query GetClubs {
-    getClubs{
+    getClubs {
         id
         clubName
     }
@@ -134,7 +134,7 @@ describe("Testing club resolver", () => {
             data: {
                 getClubs: [
                     {
-                        id: parseFloat(clubId), 
+                        id:clubId, 
                         clubName: fakeClubName
                     }
                 ]
